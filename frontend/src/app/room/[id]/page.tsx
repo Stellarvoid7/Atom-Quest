@@ -9,6 +9,7 @@ import {
   RoomAudioRenderer,
   StartAudio,
 } from '@livekit/components-react'
+import { Video, StopCircle } from 'lucide-react'
 import '@livekit/components-styles'
 import ChatPanel from '@/components/ChatPanel'
 import ReconnectOverlay from '@/components/ReconnectOverlay'
@@ -77,8 +78,47 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
 
   const livekitUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL || 'ws://localhost:7880'
 
+  const [isRecording, setIsRecording] = useState(false)
+
+  const toggleRecording = async () => {
+    try {
+      if (!isRecording) {
+        await fetch('/api/recordings/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId: id })
+        });
+        setIsRecording(true);
+      } else {
+        await fetch('/api/recordings/stop', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId: id })
+        });
+        setIsRecording(false);
+      }
+    } catch (err) {
+      console.error("Recording toggle failed", err);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col" data-lk-theme="default">
+    <div className="min-h-screen bg-slate-50 flex flex-col relative" data-lk-theme="default">
+      {role === 'agent' && (
+        <div className="absolute top-4 left-4 z-50">
+          <button 
+            onClick={toggleRecording}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm shadow-lg transition-all ${
+              isRecording 
+                ? 'bg-red-600 hover:bg-red-700 text-white animate-pulse' 
+                : 'bg-slate-900 hover:bg-slate-800 text-white'
+            }`}
+          >
+            {isRecording ? <StopCircle className="w-4 h-4" /> : <Video className="w-4 h-4" />}
+            {isRecording ? 'Stop Recording' : 'Record Session'}
+          </button>
+        </div>
+      )}
       <LiveKitRoom
         video={searchParams.get('video') !== 'false'}
         audio={searchParams.get('audio') !== 'false'}
@@ -93,7 +133,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
         {/* iOS Autoplay Gotcha #9 */}
         <StartAudio label="Tap to Join/Unmute" />
         {/* Recording consent banner (customer sees it) */}
-        <RecordingBanner />
+        <RecordingBanner isRecording={isRecording} />
         {/* Reconnection overlay */}
         <ReconnectOverlay />
         {/* Dual-write Chat */}
