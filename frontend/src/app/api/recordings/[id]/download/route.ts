@@ -32,14 +32,25 @@ export async function GET(
     return NextResponse.json({ error: 'Recording not found' }, { status: 404 });
   }
 
-  // Verify the requesting user is the agent who owns this session
+  // Fetch the requesting user's role to allow admins
+  const { data: userRow } = await supabaseAdmin
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  // Verify the requesting user is the agent who owns this session, or an admin
   const { data: session } = await supabaseAdmin
     .from('sessions')
     .select('agent_id')
     .eq('id', recording.session_id)
     .single();
 
-  if (!session || session.agent_id !== user.id) {
+  if (!session) {
+    return NextResponse.json({ error: 'Session not found' }, { status: 404 });
+  }
+
+  if (session.agent_id !== user.id && userRow?.role !== 'admin') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
   }
 

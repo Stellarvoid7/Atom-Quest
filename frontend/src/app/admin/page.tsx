@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import {
   Shield, LogOut, Users, Activity, Clock, ChevronDown, ChevronRight,
-  AlertTriangle, Radio, Zap, User, XCircle,
+  AlertTriangle, Radio, Zap, User, XCircle, Video,
 } from 'lucide-react'
 
 const supabase = createClient()
@@ -19,6 +19,7 @@ interface Session {
   agent_notes: string | null
   agent_id: string
   participants: { id: string; role: string; identity: string; joined_at: string; left_at: string | null }[]
+  recordings?: { id: string; status: string; s3_key: string; egress_id: string }[]
 }
 
 interface EventRow {
@@ -143,6 +144,12 @@ export default function AdminDashboard() {
       return 'Active'
     }
     return session.status
+  }
+
+  const getParticipantName = (p: { role: string; identity: string }) => {
+    if (p.role === 'agent') return 'Agent'
+    const parts = p.identity.split(':')
+    return parts.length > 2 ? parts.slice(2).join(':') : 'Customer'
   }
 
   const activeSessions = sessions.filter((s) => getDisplayStatus(s) === 'Active')
@@ -298,6 +305,9 @@ export default function AdminDashboard() {
                     <span className="font-mono text-xs text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-md border border-slate-200">
                       {session.id.slice(0, 8)}
                     </span>
+                    <span className="text-sm font-semibold text-slate-800">
+                      {session.participants.find(p => p.role === 'customer') ? getParticipantName(session.participants.find(p => p.role === 'customer')!) : 'Waiting...'}
+                    </span>
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                       getDisplayStatus(session) === 'Active'
                         ? 'bg-blue-50 text-blue-700 border border-blue-200'
@@ -338,7 +348,7 @@ export default function AdminDashboard() {
                         }`}
                       >
                         <User className="w-2.5 h-2.5" />
-                        {p.role} {p.left_at ? '(left)' : ''}
+                        {getParticipantName(p)} {p.left_at ? '(left)' : ''}
                       </span>
                     ))}
                   </div>
@@ -363,10 +373,52 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {/* Event Log Timeline */}
+              {/* Expanded Session Details */}
               {expandedSession === session.id && (
-                <div className="border-t border-slate-100 bg-slate-50/50 px-5 py-4">
-                  {eventsLoading ? (
+                <div className="border-t border-slate-100 bg-slate-50/50 p-5 space-y-6">
+                  
+                  {/* Recordings Section */}
+                  {session.recordings && session.recordings.length > 0 && (
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <Video className="w-4 h-4 text-slate-500" />
+                        Recordings
+                      </h4>
+                      <div className="flex flex-col gap-2">
+                        {session.recordings.map(rec => (
+                          <div key={rec.id} className="flex items-center justify-between bg-white border border-slate-200 rounded-lg p-3 shadow-sm">
+                            <div className="flex items-center gap-2">
+                              <span className={`w-2 h-2 rounded-full ${rec.status === 'ready' ? 'bg-green-500' : rec.status === 'failed' ? 'bg-red-500' : 'bg-amber-500 animate-pulse'}`} />
+                              <span className="text-xs font-medium text-slate-700">
+                                {rec.status === 'ready' ? 'Recording Ready' : rec.status === 'failed' ? 'Recording Failed' : 'Processing...'}
+                              </span>
+                            </div>
+                            {rec.status === 'ready' && (
+                              <button
+                                onClick={async () => {
+                                  const res = await fetch(`/api/recordings/${rec.id}/download`)
+                                  const data = await res.json()
+                                  if (data.url) window.open(data.url, '_blank')
+                                  else alert('Failed to get download URL: ' + data.error)
+                                }}
+                                className="px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-md text-xs font-semibold transition-colors"
+                              >
+                                Download
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Events Section */}
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-2">
+                      <Activity className="w-4 h-4 text-slate-500" />
+                      Session Events
+                    </h4>
+                    {eventsLoading ? (
                     <p className="text-xs text-slate-400 font-medium">Loading events...</p>
                   ) : events.length === 0 ? (
                     <p className="text-xs text-slate-400 font-medium">No events recorded yet</p>
@@ -400,6 +452,7 @@ export default function AdminDashboard() {
                       ))}
                     </div>
                   )}
+                  </div>
 
                   {/* Agent Notes */}
                   {session.agent_notes && (

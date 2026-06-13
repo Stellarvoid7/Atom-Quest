@@ -3,7 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 import { createLiveKitToken } from '@/lib/livekit';
 
 export async function POST(req: Request) {
-  const { inviteToken } = await req.json();
+  const { inviteToken, customerName } = await req.json();
 
   const { data: session, error } = await supabaseAdmin
     .from('sessions')
@@ -19,7 +19,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Invite expired or session inactive' }, { status: 403 });
   }
 
-  const identity = `customer:${session.id}`;
+  const safeName = customerName ? customerName.replace(/[^a-zA-Z0-9 ]/g, '').trim() : 'Customer';
+  const identity = `customer:${session.id}:${safeName}`;
 
   const { data: existingParticipant } = await supabaseAdmin
     .from('participants')
@@ -36,7 +37,7 @@ export async function POST(req: Request) {
     });
   }
 
-  const token = await createLiveKitToken(identity, 'Customer', session.id, false);
+  const token = await createLiveKitToken(identity, safeName, session.id, false);
 
   return NextResponse.json({ token, sessionId: session.id });
 }

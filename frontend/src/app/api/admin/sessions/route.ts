@@ -21,10 +21,10 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
   }
 
-  // Fetch all sessions with participant counts
+  // Fetch all sessions with participant counts and recordings
   const { data: sessions, error } = await supabaseAdmin
     .from('sessions')
-    .select('*, participants(id, role, identity, joined_at, left_at)')
+    .select('*, participants(id, role, identity, joined_at, left_at), recordings(id, status, s3_key, egress_id)')
     .order('start_time', { ascending: false })
     .limit(100);
 
