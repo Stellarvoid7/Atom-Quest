@@ -13,7 +13,7 @@ export async function GET(req: Request) {
   // Use admin client to bypass RLS, filtered to this agent's sessions
   const { data: sessions, error } = await supabaseAdmin
     .from('sessions')
-    .select('*')
+    .select('*, participants(id, role, identity, joined_at, left_at), recordings(id, status, s3_key, egress_id)')
     .eq('agent_id', user.id)
     .order('start_time', { ascending: false });
 

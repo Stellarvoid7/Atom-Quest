@@ -16,8 +16,8 @@ export async function GET(req: Request) {
     .eq('id', user.id)
     .single();
 
-  if (!userRow || userRow.role !== 'admin') {
-    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+  if (!userRow || (userRow.role !== 'admin' && userRow.role !== 'agent')) {
+    return NextResponse.json({ error: 'Access denied' }, { status: 403 });
   }
 
   const url = new URL(req.url);
@@ -26,6 +26,14 @@ export async function GET(req: Request) {
   if (!sessionId) {
     return NextResponse.json({ error: 'sessionId required' }, { status: 400 });
   }
+
+  if (userRow.role !== 'admin') {
+    const { data: sessionInfo } = await supabaseAdmin.from('sessions').select('agent_id').eq('id', sessionId).single();
+    if (!sessionInfo || sessionInfo.agent_id !== user.id) {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+    }
+  }
+
 
   const { data: events, error } = await supabaseAdmin
     .from('events')
