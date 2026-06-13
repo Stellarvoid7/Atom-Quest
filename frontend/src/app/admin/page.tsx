@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, react-hooks/exhaustive-deps */
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
@@ -13,6 +14,7 @@ const supabase = createClient()
 interface Session {
   id: string
   status: string
+  invite_expires_at: string
   start_time: string
   end_time: string | null
   duration_seconds: number | null
@@ -41,15 +43,7 @@ export default function AdminDashboard() {
   const [tab, setTab] = useState<'active' | 'history'>('active')
   const router = useRouter()
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      setLoading(false)
-      if (session?.user) fetchSessions()
-    })
-  }, [])
-
-  const fetchSessions = async () => {
+  const fetchSessions = useCallback(async () => {
     const res = await fetch('/api/admin/sessions')
     if (res.ok) {
       const { sessions: data } = await res.json()
@@ -58,7 +52,15 @@ export default function AdminDashboard() {
       alert('Admin access required')
       router.push('/')
     }
-  }
+  }, [router])
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null)
+      setLoading(false)
+      if (session?.user) fetchSessions()
+    })
+  }, [fetchSessions])
 
   const fetchEvents = async (sessionId: string) => {
     setEventsLoading(true)

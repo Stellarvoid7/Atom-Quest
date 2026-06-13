@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { FileText, Save, Check } from 'lucide-react'
 
 interface SessionNotesProps {
@@ -35,9 +36,11 @@ export default function SessionNotes({ sessionId }: SessionNotesProps) {
   }, [sessionId, notes])
 
   // Expose notes for the parent to grab on disconnect
-  if (typeof window !== 'undefined') {
-    (window as any).__agentNotes = notes
-  }
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).__agentNotes = notes
+    }
+  }, [notes])
 
   if (collapsed) {
     return (

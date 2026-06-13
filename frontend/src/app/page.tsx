@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Video, LogOut, Copy, Check, PlusCircle, User, Clock } from 'lucide-react'
 import { createClient } from '@/lib/supabase-browser'
@@ -15,6 +16,18 @@ export default function AgentDashboard() {
   const [sessions, setSessions] = useState<any[]>([])
   const [copied, setCopied] = useState<string | null>(null)
   const router = useRouter()
+
+  const fetchSessions = useCallback(async () => {
+    try {
+      const res = await fetch('/api/sessions/list')
+      if (res.ok) {
+        const { sessions } = await res.json()
+        if (sessions) setSessions(sessions)
+      }
+    } catch (err) {
+      console.error('Failed to fetch sessions:', err)
+    }
+  }, [])
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -31,19 +44,7 @@ export default function AgentDashboard() {
     })
 
     return () => subscription.unsubscribe()
-  }, [])
-
-  const fetchSessions = async () => {
-    try {
-      const res = await fetch('/api/sessions/list')
-      if (res.ok) {
-        const { sessions } = await res.json()
-        if (sessions) setSessions(sessions)
-      }
-    } catch (err) {
-      console.error('Failed to fetch sessions:', err)
-    }
-  }
+  }, [fetchSessions])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()

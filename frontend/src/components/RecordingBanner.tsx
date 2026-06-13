@@ -12,13 +12,10 @@ import { Circle } from 'lucide-react'
  */
 export default function RecordingBanner() {
   const room = useRoomContext()
-  const [isRecording, setIsRecording] = useState(false)
+  const [isRecording, setIsRecording] = useState(room.isRecording)
   const [dismissed, setDismissed] = useState(false)
 
   useEffect(() => {
-    // Check initial state
-    setIsRecording(room.isRecording)
-
     const handler = () => {
       setIsRecording(room.isRecording)
       if (room.isRecording) {

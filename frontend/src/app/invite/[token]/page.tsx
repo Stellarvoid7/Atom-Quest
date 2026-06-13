@@ -54,7 +54,7 @@ export default function CustomerInvitePage({
     validateToken()
   }, [token])
 
-  const handlePreJoinSubmit = async (values: any) => {
+  const handlePreJoinSubmit = async (values: { audioEnabled: boolean; videoEnabled: boolean }) => {
     try {
       const res = await fetch('/api/auth/customer-token', {
         method: 'POST',
@@ -81,8 +81,8 @@ export default function CustomerInvitePage({
       router.push(
         `/room/${data.sessionId}?role=customer&audio=${values.audioEnabled}&video=${values.videoEnabled}`
       )
-    } catch (err: any) {
-      setErrorDetail(err.message)
+    } catch (err: unknown) {
+      setErrorDetail(err instanceof Error ? err.message : 'Unknown error')
       setInviteState('invalid')
     }
   }
