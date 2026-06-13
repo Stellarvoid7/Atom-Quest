@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import {
   Shield, LogOut, Users, Activity, Clock, ChevronDown, ChevronRight,
-  AlertTriangle, Radio, Zap, User, XCircle, Video, MessageSquare,
+  AlertTriangle, Radio, Zap, User, XCircle, Video, MessageSquare, PlusCircle, Check, Copy
 } from 'lucide-react'
 
 const supabase = createClient()
@@ -14,6 +14,7 @@ const supabase = createClient()
 interface Session {
   id: string
   status: string
+  invite_token: string
   invite_expires_at: string
   start_time: string
   end_time: string | null
