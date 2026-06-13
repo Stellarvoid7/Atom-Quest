@@ -25,6 +25,6 @@ body {
 }
 
 /* Hide LiveKit's default chat components since we built a custom ChatPanel */
-button.lk-chat-toggle, .lk-chat {
+button.lk-chat-toggle, .lk-chat, .lk-button[title="Chat"] {
   display: none !important;
 }
