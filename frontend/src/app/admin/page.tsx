@@ -293,7 +293,10 @@ export default function AdminDashboard() {
         <div className="space-y-3">
           {(tab === 'active' ? activeSessions : historySessions).map((session) => (
             <div key={session.id} className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-              <div className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div 
+                className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:bg-slate-50 transition-colors"
+                onClick={() => toggleExpand(session.id)}
+              >
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <span className="relative flex h-2 w-2">
@@ -357,15 +360,17 @@ export default function AdminDashboard() {
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => toggleExpand(session.id)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg text-xs font-medium text-slate-600 transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg text-xs font-medium text-slate-600 transition-colors pointer-events-none"
                   >
                     {expandedSession === session.id ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-                    Events
+                    Details
                   </button>
                   {getDisplayStatus(session) === 'Active' && (
                     <button
-                      onClick={() => forceEnd(session.id)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        forceEnd(session.id)
+                      }}
                       className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 border border-red-200 hover:bg-red-100 rounded-lg text-xs font-semibold text-red-700 transition-colors"
                     >
                       <XCircle className="w-3 h-3" />
