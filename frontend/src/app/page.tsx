@@ -113,18 +113,10 @@ export default function AgentDashboard() {
   const forceEnd = async (sessionId: string) => {
     if (!confirm('Force end this session? All participants will be disconnected.')) return
 
-    const eventServiceUrl = process.env.NEXT_PUBLIC_EVENT_SERVICE_URL || ''
-    if (!eventServiceUrl) {
-      alert('Event service URL not configured (NEXT_PUBLIC_EVENT_SERVICE_URL)')
-      return
-    }
-
-    const { data: { session: authSession } } = await supabase.auth.getSession()
-    const res = await fetch(`${eventServiceUrl}/api/admin/force-end`, {
+    const res = await fetch(`/api/sessions/end`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${authSession?.access_token}`,
       },
       body: JSON.stringify({ sessionId }),
     })
