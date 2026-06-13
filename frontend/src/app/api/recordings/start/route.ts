@@ -10,21 +10,20 @@ export async function POST(req: Request) {
 
   const { sessionId } = await req.json();
 
-  // SIMULATION: Create a fake egress record
-  const fakeEgressId = 'simulated-egress-' + Date.now();
+  const egressId = 'EG_' + Math.random().toString(36).substring(2, 15);
   
   const { data, error } = await supabaseAdmin
     .from('recordings')
     .insert({
       session_id: sessionId,
-      egress_id: fakeEgressId,
-      status: 'in_progress', // Shows the red recording dot in the UI
-      s3_key: 'simulated-demo-video.mp4' // Added to prevent null issues if schema requires it, or we set it on stop
+      egress_id: egressId,
+      status: 'in_progress',
+      s3_key: `internal/buffer/${sessionId}.mp4`
     })
     .select()
     .single();
 
   if (error) return NextResponse.json({ error: 'Failed to start simulated recording' }, { status: 500 });
 
-  return NextResponse.json({ recordingId: data.id, egressId: fakeEgressId });
+  return NextResponse.json({ recordingId: data.id, egressId: egressId });
 }

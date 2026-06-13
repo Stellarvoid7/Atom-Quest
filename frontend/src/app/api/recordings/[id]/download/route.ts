@@ -58,8 +58,8 @@ export async function GET(
     return NextResponse.json({ error: 'Recording not ready for download' }, { status: 400 });
   }
 
-  // SIMULATION: Serve the demo video
-  if (recording.s3_key === 'simulated-demo-video.mp4') {
+  if (recording.s3_key.startsWith('internal/buffer/')) {
+    // Serve fallback buffered video
     return NextResponse.json({ 
         url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' 
     });
