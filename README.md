@@ -80,5 +80,13 @@ docker compose up --build -d
 
 Then configure your LiveKit project webhook URL to point to `https://events.<domain>/webhooks/livekit`.
 
+## Known Limitations & Design Decisions
+
+1. **LiveKit Cloud vs Self-Hosting**: 
+   - **Defense**: LiveKit is an open-source SFU. A fully functional self-hosted deployment is included directly in the repository (`vm-services/infrastructure/` containing the LiveKit server, Caddy, and configurations). 
+   - We utilized LiveKit Cloud strictly for demo-day reliability, network consistency, and high availability. To transition entirely to self-hosting, one simply provisions a VM with the included docker-compose setup and updates the `LIVEKIT_URL` variable.
+2. **Cold Starts**: The VM Event Service is currently deployed on Render's free tier for this hackathon. If idle for >15 minutes, it will spin down, requiring a 30-60s cold start. LiveKit webhooks fired during this window may be delayed or dropped, meaning the Admin/Agent panel's Live View might briefly lag until the service warms up.
+3. **Database Polling**: The frontend currently relies heavily on polling (e.g., `setInterval` for fetching events) instead of pure WebSockets. This was a design tradeoff to ensure rapid iteration, but a production grade app would stream these updates via SSE or WebSockets directly from the event service.
+
 ---
 *Deployed on Vercel & Render for Hackathon Finale*

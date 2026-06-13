@@ -1,0 +1,18 @@
+graph TD
+    Client[Browser Clients\nAgent & Customer]
+    Vercel[Next.js App\nVercel]
+    Supabase[(Supabase\nDB & Storage)]
+    LiveKit[LiveKit Server\nWebRTC SFU]
+    EventService[Event Service\nNode.js VM]
+    Prometheus[Prometheus\nMetrics]
+    Grafana[Grafana\nDashboard]
+
+    Client <-->|HTTPS / API| Vercel
+    Client <-->|WebRTC / wss| LiveKit
+    Vercel <-->|HTTPS / SQL| Supabase
+    LiveKit -->|Webhooks| EventService
+    EventService <-->|HTTPS / SQL| Supabase
+    Client <-->|SSE| EventService
+    Prometheus -->|Scrape| EventService
+    Prometheus -->|Scrape| LiveKit
+    Grafana -->|Query| Prometheus

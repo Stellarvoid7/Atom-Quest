@@ -2,7 +2,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
-import { EgressClient, EncodedFileOutput, EncodedFileType } from 'livekit-server-sdk';
+  import { EgressClient, EncodedFileOutput, EncodedFileType, S3Upload } from 'livekit-server-sdk';
+
 
 /**
  * POST /api/recordings/start — Agent-only
@@ -58,9 +59,21 @@ export async function POST(req: Request) {
   // Server-generated S3 key — never use client input for the path
   const s3Key = `recordings/${sessionId}/${Date.now()}.mp4`;
 
+  let s3Upload: S3Upload | undefined;
+  if (process.env.S3_ACCESS_KEY && process.env.S3_SECRET_KEY && process.env.S3_ENDPOINT) {
+    s3Upload = new S3Upload({
+      accessKey: process.env.S3_ACCESS_KEY,
+      secret: process.env.S3_SECRET_KEY,
+      endpoint: process.env.S3_ENDPOINT,
+      bucket: process.env.S3_BUCKET || 'recordings',
+      region: process.env.S3_REGION || 'auto',
+    });
+  }
+
   const fileOutput = new EncodedFileOutput({
     fileType: EncodedFileType.MP4,
     filepath: s3Key,
+    s3: s3Upload,
   });
 
   let egressId: string;
