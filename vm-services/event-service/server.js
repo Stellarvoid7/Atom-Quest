@@ -158,6 +158,14 @@ app.post('/webhooks/livekit', express.raw({ type: 'application/webhook+json' }),
         activeRooms.delete(room);
         activeSessions.dec();
         await writeEvent(room, null, 'room_finished', { roomSid: event.room?.sid });
+        
+        // ADD THIS LOOP TO CLEAR TIMERS
+        for (const [key, timer] of graceTimers.entries()) {
+          if (key.startsWith(`${room}:`)) {
+            clearTimeout(timer);
+            graceTimers.delete(key);
+          }
+        }
         break;
       }
 

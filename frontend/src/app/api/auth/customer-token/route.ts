@@ -20,7 +20,7 @@ export async function POST(req: Request) {
   }
 
   const safeName = customerName ? customerName.replace(/[^a-zA-Z0-9 ]/g, '').trim() : 'Customer';
-  const identity = `customer:${session.id}:${safeName}`;
+  const identity = `customer:${session.id}`;
 
   const { data: existingParticipant } = await supabaseAdmin
     .from('participants')

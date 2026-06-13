@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import {
   Shield, LogOut, Users, Activity, Clock, ChevronDown, ChevronRight,
-  AlertTriangle, Radio, Zap, User, XCircle, Video, MessageSquare,
+  AlertTriangle, Radio, Zap, User, XCircle, Video, MessageSquare, PlusCircle, Check, Copy
 } from 'lucide-react'
 
 const supabase = createClient()
