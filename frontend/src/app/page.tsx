@@ -199,42 +199,33 @@ export default function AdminDashboard() {
       <div className="max-w-6xl mx-auto px-6 mt-8 space-y-8">
         
         {/* System Health / Observability Banner */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col md:flex-row items-center justify-between text-white">
-          <div>
-            <h3 className="text-sm font-bold flex items-center gap-2 mb-2">
-              <Activity className="w-4 h-4 text-green-400" />
-              System Observability & Health
-            </h3>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
-                </span>
-                LiveKit SFU Active
+        <div className="bg-gradient-to-r from-slate-900 to-slate-800 border border-slate-700/50 rounded-2xl p-5 shadow-xl text-white">
+          <h3 className="text-sm font-bold flex items-center gap-2 mb-3">
+            <Activity className="w-4 h-4 text-green-400" />
+            System Observability & Health
+          </h3>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/25 transition-colors">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
               </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/15 text-blue-400 border border-blue-500/20">
-                <span className="h-2 w-2 rounded-full bg-blue-400"></span>
-                TURN TCP/443 Operational
+              LiveKit SFU Active
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-blue-500/15 text-blue-400 border border-blue-500/20 hover:bg-blue-500/25 transition-colors">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" style={{animationDelay: '0.5s'}}></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-400"></span>
               </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/15 text-purple-400 border border-purple-500/20">
-                <span className="h-2 w-2 rounded-full bg-purple-400"></span>
-                Postgres Latency: ~12ms
+              TURN TCP/443 Operational
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-purple-500/15 text-purple-400 border border-purple-500/20 hover:bg-purple-500/25 transition-colors">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75" style={{animationDelay: '1s'}}></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-400"></span>
               </span>
-            </div>
-          </div>
-          <div className="mt-4 md:mt-0 flex gap-3">
-            <button 
-              onClick={() => {
-                const url = `${process.env.NEXT_PUBLIC_EVENT_SERVICE_URL || 'http://localhost:8080'}/metrics`
-                navigator.clipboard.writeText(url)
-                alert(`Prometheus endpoint copied: ${url}`)
-              }}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-700 transition-colors flex items-center gap-2"
-            >
-              <Activity className="w-3 h-3" />
-              Copy Prometheus Endpoint
-            </button>
+              Postgres Latency: ~12ms
+            </span>
           </div>
         </div>
 
@@ -244,9 +235,9 @@ export default function AdminDashboard() {
             { label: 'Live Sessions', value: activeSessions.length, icon: Radio, color: 'text-emerald-500', bg: 'bg-emerald-50' },
             { label: 'Total Handled', value: sessions.length, icon: Users, color: 'text-blue-500', bg: 'bg-blue-50' },
             { label: 'Active Participants', value: activeSessions.reduce((acc, s) => acc + s.participants.filter(p => !p.left_at).length, 0), icon: Activity, color: 'text-indigo-500', bg: 'bg-indigo-50' },
-            { label: 'Avg Call Time', value: historySessions.length ? formatDuration(Math.round(historySessions.reduce((a, s) => a + (s.duration_seconds || 0), 0) / historySessions.length)) : 'â€”', icon: Clock, color: 'text-amber-500', bg: 'bg-amber-50' }
+            { label: 'Avg Call Time', value: historySessions.length ? formatDuration(Math.round(historySessions.reduce((a, s) => a + (s.duration_seconds || 0), 0) / historySessions.length)) : '—', icon: Clock, color: 'text-amber-500', bg: 'bg-amber-50' }
           ].map((stat, i) => (
-            <div key={i} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
+            <div key={i} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
               <div className="flex items-center gap-3 mb-3">
                 <div className={`p-2 rounded-lg ${stat.bg}`}><stat.icon className={`w-4 h-4 ${stat.color}`} /></div>
                 <span className="text-sm font-semibold text-slate-500">{stat.label}</span>
@@ -273,12 +264,12 @@ export default function AdminDashboard() {
         {/* Session List */}
         <div className="space-y-4">
           {(tab === 'active' ? activeSessions : historySessions).map((session) => (
-            <div key={session.id} className="bg-white border border-slate-200 hover:border-blue-300 rounded-2xl shadow-sm hover:shadow-lg transition-all overflow-hidden group">
+            <div key={session.id} className="bg-white border border-slate-200 hover:border-blue-300 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 overflow-hidden group">
               <div onClick={() => toggleExpand(session.id)} className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-3">
                     <span className={`px-2.5 py-1 rounded-md text-[11px] font-black uppercase tracking-wider ${tab === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
-                      {tab === 'active' ? 'â— Live' : 'Ended'}
+                      {tab === 'active' ? '● Live' : 'Ended'}
                     </span>
                     <span className="font-mono text-sm font-semibold text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">ID: {session.id.split('-')[0]}</span>
                     <span className="text-sm text-slate-400 font-medium">{formatTime(session.start_time)}</span>
@@ -294,20 +285,20 @@ export default function AdminDashboard() {
                 <div className="flex items-center gap-3">
                   {tab === 'active' && (
                     <>
-                      <button onClick={(e) => { e.stopPropagation(); copyLink(session.invite_token) }} className="flex items-center gap-2 px-3 py-2 bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 hover:border-slate-300 rounded-xl text-sm font-bold transition-all">
+                      <button onClick={(e) => { e.stopPropagation(); copyLink(session.invite_token) }} className="flex items-center gap-2 px-3 py-2 bg-white hover:bg-blue-50 text-slate-600 hover:text-blue-600 border border-slate-200 hover:border-blue-300 rounded-xl text-sm font-bold transition-all duration-150 active:scale-95">
                         {copied === session.invite_token ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
                         {copied === session.invite_token ? 'Copied' : 'Invite'}
                       </button>
-                      <button onClick={(e) => { e.stopPropagation(); joinSession(session.id) }} className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white border border-slate-800 rounded-xl text-sm font-bold transition-all shadow-sm">
+                      <button onClick={(e) => { e.stopPropagation(); joinSession(session.id) }} className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-blue-700 text-white border border-slate-800 hover:border-blue-600 rounded-xl text-sm font-bold transition-all duration-150 shadow-sm hover:shadow-lg hover:shadow-blue-500/20 active:scale-95">
                         <Video className="w-4 h-4" /> Join
                       </button>
-                      <button onClick={(e) => { e.stopPropagation(); forceEnd(session.id) }} className="flex items-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-600 text-red-600 hover:text-white border border-red-200 hover:border-red-600 rounded-xl text-sm font-bold transition-all">
+                      <button onClick={(e) => { e.stopPropagation(); forceEnd(session.id) }} className="flex items-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-600 text-red-600 hover:text-white border border-red-200 hover:border-red-600 rounded-xl text-sm font-bold transition-all duration-150 hover:shadow-lg hover:shadow-red-500/20 active:scale-95">
                         <XCircle className="w-4 h-4" /> Force End
                       </button>
                     </>
                   )}
                   {tab === 'history' && (
-                    <button onClick={(e) => { e.stopPropagation(); deleteSession(session.id) }} className="flex items-center gap-2 px-3 py-2 bg-white hover:bg-red-50 text-slate-400 hover:text-red-600 border border-slate-200 hover:border-red-200 rounded-xl text-sm font-bold transition-all">
+                    <button onClick={(e) => { e.stopPropagation(); deleteSession(session.id) }} className="flex items-center gap-2 px-3 py-2 bg-white hover:bg-red-50 text-slate-400 hover:text-red-600 border border-slate-200 hover:border-red-200 rounded-xl text-sm font-bold transition-all duration-150 active:scale-95">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   )}
