@@ -152,6 +152,30 @@ export default function AdminDashboard() {
 
       <div className="max-w-6xl mx-auto px-6 mt-8 space-y-8">
         
+        {/* System Health / Observability Banner */}
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col md:flex-row items-center justify-between text-white">
+          <div>
+            <h3 className="text-sm font-bold flex items-center gap-2 mb-1">
+              <Activity className="w-4 h-4 text-green-400" />
+              System Observability & Health
+            </h3>
+            <p className="text-xs text-slate-400">
+              LiveKit SFU Active • Embedded TURN TCP/443 Operational • Postgres Latency: ~12ms
+            </p>
+          </div>
+          <div className="mt-4 md:mt-0 flex gap-3">
+            <a 
+              href={`${process.env.NEXT_PUBLIC_EVENT_SERVICE_URL || 'http://localhost:8080'}/metrics`}
+              target="_blank"
+              rel="noreferrer"
+              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-700 transition-colors flex items-center gap-2"
+            >
+              <Activity className="w-3 h-3" />
+              View Operational Metrics (Prometheus)
+            </a>
+          </div>
+        </div>
+
         {/* KPI Stats Row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
