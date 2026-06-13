@@ -33,9 +33,15 @@ export async function GET(req: Request) {
     .eq('session_id', sessionId)
     .order('timestamp', { ascending: true });
 
+  const { data: chats } = await supabaseAdmin
+    .from('chat_messages')
+    .select('*, files(s3_key, mime_type, id), participants(role, identity)')
+    .eq('session_id', sessionId)
+    .order('timestamp', { ascending: true });
+
   if (error) {
     return NextResponse.json({ error: 'Failed to fetch events' }, { status: 500 });
   }
 
-  return NextResponse.json({ events });
+  return NextResponse.json({ events, chats: chats || [] });
 }

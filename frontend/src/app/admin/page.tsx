@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import {
   Shield, LogOut, Users, Activity, Clock, ChevronDown, ChevronRight,
-  AlertTriangle, Radio, Zap, User, XCircle, Video,
+  AlertTriangle, Radio, Zap, User, XCircle, Video, MessageSquare,
 } from 'lucide-react'
 
 const supabase = createClient()
@@ -36,6 +36,7 @@ export default function AdminDashboard() {
   const [sessions, setSessions] = useState<Session[]>([])
   const [expandedSession, setExpandedSession] = useState<string | null>(null)
   const [events, setEvents] = useState<EventRow[]>([])
+  const [chats, setChats] = useState<any[]>([])
   const [eventsLoading, setEventsLoading] = useState(false)
   const [tab, setTab] = useState<'active' | 'history'>('active')
   const router = useRouter()
@@ -63,8 +64,9 @@ export default function AdminDashboard() {
     setEventsLoading(true)
     const res = await fetch(`/api/admin/events?sessionId=${sessionId}`)
     if (res.ok) {
-      const { events: data } = await res.json()
+      const { events: data, chats: chatData } = await res.json()
       setEvents(data || [])
+      setChats(chatData || [])
     }
     setEventsLoading(false)
   }
@@ -405,6 +407,47 @@ export default function AdminDashboard() {
                               >
                                 Download
                               </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {/* Chats Section */}
+                  {chats.length > 0 && (
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <MessageSquare className="w-4 h-4 text-slate-500" />
+                        Chat History
+                      </h4>
+                      <div className="space-y-3">
+                        {chats.map((chat) => (
+                          <div key={chat.id} className="bg-white border border-slate-200 rounded-lg p-3 shadow-sm">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-xs font-semibold text-slate-800">
+                                {chat.participants ? getParticipantName(chat.participants) : 'System'}
+                              </span>
+                              <span className="text-[10px] text-slate-400">
+                                {new Date(chat.timestamp).toLocaleTimeString()}
+                              </span>
+                            </div>
+                            {chat.payload && (
+                              <p className="text-xs text-slate-600 whitespace-pre-wrap">{chat.payload}</p>
+                            )}
+                            {chat.files && (
+                              <div className="mt-2 p-2 bg-slate-50 border border-slate-200 rounded text-xs">
+                                <span className="font-medium text-slate-700">📎 Attached File:</span>{' '}
+                                <span className="text-slate-500">{chat.files.mime_type || 'Unknown Type'}</span>
+                                <div className="mt-1">
+                                  <a
+                                    href={`/api/files/${chat.files.id}/download`}
+                                    target="_blank"
+                                    className="text-blue-600 hover:underline font-medium"
+                                  >
+                                    Download File
+                                  </a>
+                                </div>
+                              </div>
                             )}
                           </div>
                         ))}
