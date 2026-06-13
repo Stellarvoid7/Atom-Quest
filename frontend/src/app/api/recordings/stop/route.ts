@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     .eq('session_id', sessionId)
     .eq('status', 'in_progress');
 
-  if (error) return NextResponse.json({ error: 'Failed to stop simulated recording' }, { status: 500 });
+  if (error) return NextResponse.json({ error: 'Failed to stop recording' }, { status: 500 });
 
   return NextResponse.json({ success: true });
 }

@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: 'Failed to start simulated recording' }, { status: 500 });
+  if (error) return NextResponse.json({ error: 'Failed to start recording' }, { status: 500 });
 
   return NextResponse.json({ recordingId: data.id, egressId: egressId });
 }

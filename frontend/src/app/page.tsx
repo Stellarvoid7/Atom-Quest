@@ -5,8 +5,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import {
-  Shield, LogOut, Users, Activity, Clock, ChevronDown, ChevronRight,
-  AlertTriangle, Radio, Zap, User, XCircle, Video, MessageSquare, Trash2, PlusCircle, Copy, Link, Check
+  Shield, LogOut, Users, Activity, Clock, ChevronRight,
+  AlertTriangle, Radio, Zap, XCircle, Video, MessageSquare, Trash2, PlusCircle, Copy, Check
 } from 'lucide-react'
 
 const supabase = createClient()
@@ -201,24 +201,40 @@ export default function AdminDashboard() {
         {/* System Health / Observability Banner */}
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col md:flex-row items-center justify-between text-white">
           <div>
-            <h3 className="text-sm font-bold flex items-center gap-2 mb-1">
+            <h3 className="text-sm font-bold flex items-center gap-2 mb-2">
               <Activity className="w-4 h-4 text-green-400" />
               System Observability & Health
             </h3>
-            <p className="text-xs text-slate-400">
-              LiveKit SFU Active â€¢ Embedded TURN TCP/443 Operational â€¢ Postgres Latency: ~12ms
-            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+                </span>
+                LiveKit SFU Active
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/15 text-blue-400 border border-blue-500/20">
+                <span className="h-2 w-2 rounded-full bg-blue-400"></span>
+                TURN TCP/443 Operational
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/15 text-purple-400 border border-purple-500/20">
+                <span className="h-2 w-2 rounded-full bg-purple-400"></span>
+                Postgres Latency: ~12ms
+              </span>
+            </div>
           </div>
           <div className="mt-4 md:mt-0 flex gap-3">
-            <a 
-              href={`${process.env.NEXT_PUBLIC_EVENT_SERVICE_URL || 'http://localhost:8080'}/metrics`}
-              target="_blank"
-              rel="noreferrer"
+            <button 
+              onClick={() => {
+                const url = `${process.env.NEXT_PUBLIC_EVENT_SERVICE_URL || 'http://localhost:8080'}/metrics`
+                navigator.clipboard.writeText(url)
+                alert(`Prometheus endpoint copied: ${url}`)
+              }}
               className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-700 transition-colors flex items-center gap-2"
             >
               <Activity className="w-3 h-3" />
-              View Operational Metrics (Prometheus)
-            </a>
+              Copy Prometheus Endpoint
+            </button>
           </div>
         </div>
 
