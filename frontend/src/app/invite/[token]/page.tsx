@@ -26,8 +26,8 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
       
       // FIX: Pass token securely in the URL instead of sessionStorage to prevent cross-tab drops
       router.push(`/room/${data.sessionId}?role=customer&lk_token=${data.token}`)
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred')
       setLoading(false)
     }
   }
