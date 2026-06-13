@@ -99,26 +99,42 @@ export default function AdminDashboard() {
   // FIX: Force end now uses the robust Next.js API route we just built
   const forceEnd = async (sessionId: string) => {
     if (!confirm('Force end this session? All participants will be disconnected.')) return
+
+    // Optimistic update
+    setSessions(prev => prev.map(s => s.id === sessionId ? { ...s, status: 'ended' } : s))
+
     const res = await fetch(`/api/sessions/end`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({ sessionId }),
     })
+
     if (res.ok) {
       fetchSessions()
       setExpandedSession(null)
+    } else {
+      const data = await res.json()
+      alert(data.error || 'Force end failed')
+      fetchSessions() // revert on fail
     }
   }
 
   // NEW FEATURE: Delete Session
   const deleteSession = async (sessionId: string) => {
     if (!confirm('WARNING: Are you sure you want to permanently delete this session and all its chat/recording history? This cannot be undone.')) return
+    
+    // Optimistic update
+    setSessions(prev => prev.filter(s => s.id !== sessionId))
+
     const res = await fetch(`/api/admin/sessions/${sessionId}`, { method: 'DELETE' })
     if (res.ok) {
       fetchSessions()
       setExpandedSession(null)
     } else {
       alert("Failed to delete session. Check console.")
+      fetchSessions() // revert on fail
     }
   }
 
