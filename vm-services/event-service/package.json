@@ -1,0 +1,17 @@
+{
+  "name": "atomquest-event-service",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LiveKit webhook handler, SSE admin stream, force-end, and Prometheus metrics",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "@supabase/supabase-js": "^2.45.0",
+    "livekit-server-sdk": "^2.15.0",
+    "prom-client": "^15.1.0"
+  }
+}

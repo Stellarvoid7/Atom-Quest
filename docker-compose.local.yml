@@ -1,0 +1,11 @@
+version: '3.9'
+
+services:
+  livekit-server:
+    image: livekit/livekit-server:latest
+    ports:
+      - "7880:7880"
+      - "7881:7881"
+      - "7882:7882/udp"
+    command: --dev --bind 0.0.0.0
+    # Runs on localhost:7880 with no TLS, DNS, or Caddy. Perfect for local dev.

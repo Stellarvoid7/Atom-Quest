@@ -1,0 +1,13 @@
+{
+    log
+}
+
+livekit.{$DOMAIN} {
+    # LiveKit signaling over WSS
+    reverse_proxy localhost:7880
+}
+
+events.{$DOMAIN} {
+    # Node.js Event Service
+    reverse_proxy localhost:3001
+}
