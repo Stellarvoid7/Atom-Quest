@@ -79,3 +79,6 @@ docker compose up --build -d
 ```
 
 Then configure your LiveKit project webhook URL to point to `https://events.<domain>/webhooks/livekit`.
+
+---
+*Deployed on Vercel & Render for Hackathon Finale*
