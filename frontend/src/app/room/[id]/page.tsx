@@ -9,16 +9,17 @@ import {
   RoomAudioRenderer,
   StartAudio,
 } from '@livekit/components-react'
-import { Video, StopCircle } from 'lucide-react'
 import '@livekit/components-styles'
 import ChatPanel from '@/components/ChatPanel'
 import ReconnectOverlay from '@/components/ReconnectOverlay'
 import SessionNotes from '@/components/SessionNotes'
 import RecordingBanner from '@/components/RecordingBanner'
+import { Video, StopCircle, Loader2 } from 'lucide-react'
 
 export default function RoomPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const [token, setToken] = useState<string>('')
+  const [isRecording, setIsRecording] = useState(false)
   const searchParams = useSearchParams()
   const router = useRouter()
   const role = searchParams.get('role') || 'customer'
@@ -36,27 +37,26 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
           if (!res.ok) throw new Error(data.error)
           setToken(data.token)
         } catch (err) {
-          alert('Failed to get agent token')
+          alert('Failed to authenticate agent. Check backend logs.')
           router.push('/')
         }
       } else {
-        const storedToken = sessionStorage.getItem('livekit_token')
-        if (storedToken) {
-          setToken(storedToken)
+        // Fetch token from URL param instead of sessionStorage
+        const urlToken = searchParams.get('lk_token')
+        if (urlToken) {
+          setToken(urlToken)
         } else {
-          alert('No token found, please use your invite link')
+          alert('Invalid invite link. Token missing.')
           router.push('/')
         }
       }
     }
     fetchToken()
-  }, [id, role, router])
+  }, [id, role, router, searchParams])
 
   const handleDisconnected = useCallback(async () => {
     if (role === 'agent') {
-      // Grab notes from the SessionNotes component via window global
       const notes = typeof window !== 'undefined' ? (window as any).__agentNotes || '' : ''
-
       if (confirm('End the session for everyone?')) {
         await fetch('/api/sessions/end', {
           method: 'POST',
@@ -67,18 +67,6 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
     }
     router.push(role === 'agent' ? '/' : '/thank-you')
   }, [role, id, router])
-
-  if (token === '') {
-    return (
-      <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center text-slate-500 font-medium">
-        Connecting to secure server...
-      </div>
-    )
-  }
-
-  const livekitUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL || 'ws://localhost:7880'
-
-  const [isRecording, setIsRecording] = useState(false)
 
   const toggleRecording = async () => {
     try {
@@ -98,27 +86,41 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
         setIsRecording(false);
       }
     } catch (err) {
-      console.error("Recording toggle failed", err);
+      console.error("Recording failed", err);
     }
-  };
+  }
+
+  if (token === '') {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-600 font-semibold gap-3">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        Connecting to Secure Video Server...
+      </div>
+    )
+  }
+
+  const livekitUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL || 'ws://localhost:7880'
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col relative" data-lk-theme="default">
+    <div className="min-h-screen bg-slate-950 flex flex-col relative" data-lk-theme="default">
+      
+      {/* FLOATING RECORD BUTTON FOR AGENT ONLY */}
       {role === 'agent' && (
-        <div className="absolute top-4 left-4 z-50">
+        <div className="absolute top-6 left-6 z-50">
           <button 
             onClick={toggleRecording}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm shadow-lg transition-all ${
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm shadow-xl transition-all border ${
               isRecording 
-                ? 'bg-red-600 hover:bg-red-700 text-white animate-pulse' 
-                : 'bg-slate-900 hover:bg-slate-800 text-white'
+                ? 'bg-red-600 hover:bg-red-700 text-white border-red-500 animate-pulse shadow-red-500/20' 
+                : 'bg-slate-900/80 backdrop-blur-md hover:bg-slate-800 text-white border-slate-700'
             }`}
           >
-            {isRecording ? <StopCircle className="w-4 h-4" /> : <Video className="w-4 h-4" />}
+            {isRecording ? <StopCircle className="w-5 h-5" /> : <Video className="w-5 h-5" />}
             {isRecording ? 'Stop Recording' : 'Record Session'}
           </button>
         </div>
       )}
+
       <LiveKitRoom
         video={searchParams.get('video') !== 'false'}
         audio={searchParams.get('audio') !== 'false'}
@@ -127,18 +129,12 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
         onDisconnected={handleDisconnected}
         className="flex-1 w-full"
       >
-        {/* VideoConference already includes built-in screen share toggle */}
         <VideoConference />
         <RoomAudioRenderer />
-        {/* iOS Autoplay Gotcha #9 */}
         <StartAudio label="Tap to Join/Unmute" />
-        {/* Recording consent banner (customer sees it) */}
-        <RecordingBanner isRecording={isRecording} />
-        {/* Reconnection overlay */}
+        <RecordingBanner /> 
         <ReconnectOverlay />
-        {/* Dual-write Chat */}
         <ChatPanel sessionId={id} livekitToken={token} role={role} />
-        {/* Agent-only Session Notes */}
         {role === 'agent' && <SessionNotes sessionId={id} />}
       </LiveKitRoom>
     </div>
