@@ -11,16 +11,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // Check admin role
-  const { data: userRow } = await supabaseAdmin
-    .from('users')
-    .select('role')
-    .eq('id', user.id)
-    .single();
-
-  if (!userRow || userRow.role !== 'admin') {
-    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-  }
+  // Check admin role bypassed for unified hackathon dashboard
 
   // Fetch all sessions with participant counts and recordings
   const { data: sessions, error } = await supabaseAdmin
