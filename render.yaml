@@ -8,7 +8,7 @@ services:
     plan: free
     envVars:
       - key: PORT
-        value: 3001
+        value: '3001'
       - key: LIVEKIT_API_KEY
         sync: false
       - key: LIVEKIT_API_SECRET
