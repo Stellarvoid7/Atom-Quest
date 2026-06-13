@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: atomquest-event-service
+    env: node
+    rootDir: vm-services/event-service
+    buildCommand: npm install
+    startCommand: node server.js
+    plan: free
+    envVars:
+      - key: PORT
+        value: 3001
+      - key: LIVEKIT_API_KEY
+        sync: false
+      - key: LIVEKIT_API_SECRET
+        sync: false
+      - key: LIVEKIT_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: METRICS_USER
+        value: prometheus
+      - key: METRICS_PASS
+        sync: false
