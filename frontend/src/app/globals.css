@@ -23,3 +23,8 @@ body {
   @apply bg-[#F9FAFB] text-slate-900 antialiased selection:bg-blue-100 selection:text-blue-900;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
+
+/* Hide LiveKit's default chat components since we built a custom ChatPanel */
+button.lk-chat-toggle, .lk-chat {
+  display: none !important;
+}

@@ -129,8 +129,27 @@ export default function AdminDashboard() {
 
   const formatTime = (ts: string) => new Date(ts).toLocaleString()
 
-  const activeSessions = sessions.filter((s) => s.status === 'active')
-  const historySessions = sessions.filter((s) => s.status === 'ended')
+  const getDisplayStatus = (session: Session) => {
+    if (session.status === 'ended') {
+      const customerJoined = session.participants.some((p) => p.role === 'customer')
+      return customerJoined ? 'Resolved' : 'Expired'
+    }
+    if (session.status === 'active') {
+      const isExpired = new Date() > new Date(session.invite_expires_at)
+      const customerJoined = session.participants.some((p) => p.role === 'customer')
+      if (isExpired && !customerJoined) {
+        return 'Expired'
+      }
+      return 'Active'
+    }
+    return session.status
+  }
+
+  const activeSessions = sessions.filter((s) => getDisplayStatus(s) === 'Active')
+  const historySessions = sessions.filter((s) => {
+    const status = getDisplayStatus(s)
+    return status === 'Resolved' || status === 'Expired'
+  })
 
   if (loading) {
     return (
@@ -269,22 +288,24 @@ export default function AdminDashboard() {
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <span className="relative flex h-2 w-2">
-                      {session.status === 'active' && (
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                      {getDisplayStatus(session) === 'Active' && (
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
                       )}
                       <span className={`relative inline-flex rounded-full h-2 w-2 ${
-                        session.status === 'active' ? 'bg-green-500' : 'bg-slate-300'
+                        getDisplayStatus(session) === 'Active' ? 'bg-blue-500' : getDisplayStatus(session) === 'Resolved' ? 'bg-green-500' : 'bg-slate-300'
                       }`} />
                     </span>
                     <span className="font-mono text-xs text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-md border border-slate-200">
                       {session.id.slice(0, 8)}
                     </span>
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                      session.status === 'active'
+                      getDisplayStatus(session) === 'Active'
+                        ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                        : getDisplayStatus(session) === 'Resolved'
                         ? 'bg-green-50 text-green-700 border border-green-200'
                         : 'bg-slate-100 text-slate-600 border border-slate-200'
                     }`}>
-                      {session.status}
+                      {getDisplayStatus(session)}
                     </span>
                   </div>
                   <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500">
@@ -330,7 +351,7 @@ export default function AdminDashboard() {
                     {expandedSession === session.id ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
                     Events
                   </button>
-                  {session.status === 'active' && (
+                  {getDisplayStatus(session) === 'Active' && (
                     <button
                       onClick={() => forceEnd(session.id)}
                       className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 border border-red-200 hover:bg-red-100 rounded-lg text-xs font-semibold text-red-700 transition-colors"
