@@ -2,6 +2,13 @@
 
 Real-time video support platform built for the AtomQuest Hackathon 1.0.
 
+## Accounts (Login Credentials)
+
+| Role    | Email                  | Password     |
+| ------- | ---------------------- | ------------ |
+| Agent   | agent@atomquest.dev    | Agent@2026!  |
+| Admin   | admin@atomquest.dev    | Admin@2026!  |
+
 ## Architecture
 
 - **Frontend**: Next.js 16 (App Router) + Tailwind CSS, deployed on Vercel
@@ -41,13 +48,6 @@ npm install
 cp .env.example .env.local  # fill in credentials
 npm run dev
 ```
-
-## Accounts
-
-| Role    | Email                  | Password     |
-| ------- | ---------------------- | ------------ |
-| Agent   | agent@atomquest.dev    | Agent@2026!  |
-| Admin   | admin@atomquest.dev    | Admin@2026!  |
 
 ## File Upload
 
